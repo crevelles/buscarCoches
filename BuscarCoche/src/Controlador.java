@@ -1,23 +1,26 @@
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.table.DefaultTableModel;
 
-public class Controlador implements ActionListener{
+public class Controlador implements ActionListener, MouseListener{
 
 	VistaBusca vb;
-	AccessOracle bbdd;
-	ArrayList<Coche> coches = new ArrayList<>();
-	GestionBBDD bd;
+	Modelo md;
+	Runtime r = Runtime.getRuntime();
+
+
 	
-	public Controlador(VistaBusca vb, AccessOracle bbdd) {
+	public Controlador(VistaBusca vb, Modelo model) {
 		super();
 		this.vb = vb;
-		this.bbdd = bbdd;
-		bd = new GestionBBDD(bbdd.conexion);
-		bd.consultaCoches(coches);
+		this.md = model;
 	}
 
 
@@ -28,15 +31,25 @@ public class Controlador implements ActionListener{
 		Object o = e.getSource();
 		
 		if(o == vb.btnSalir) {
-			vb.dispose();
-			bbdd.cerrarBaseDatos();
-		} else if (o == vb.btnBuscar){
-			buscar();
+			md.cerrar();
+			
+		} else if(o == vb.btnExcel) {
+			md.excel();
+		} else if(o == vb.btnPowerpoint) {
+			md.power();
+		} else if(o == vb.btnWord) {
+			md.word();
+		} else if(o == vb.btnGO) {
+			md.navegacion();
+		} else if(o == vb.btnLimpiarHistorial) {
+			limpiarTabla();
+			
 		}
 		
 	}
 
 	private void limpiarTabla() {
+
 		try {
 			while (vb.table.getColumnCount() > 1) {
 				DefaultTableModel t = (DefaultTableModel) vb.table.getModel();
@@ -47,40 +60,60 @@ public class Controlador implements ActionListener{
 		}
 	}
 
-	
-	
-	
-	
 
-	private void buscar() {
-		int contador = 0;
-		limpiarTabla();
-		String pMin, pMax;
-		pMin = vb.textMin.getText();
-		pMax = vb.textMax.getText();
-			try {
-				int precioMinimo = Integer.parseInt(pMin);
-				int precioMaximo = Integer.parseInt(pMax);
-				for (Coche coche : coches) {
-					if (coche.getPrecio() <= precioMaximo && coche.getPrecio() >= precioMinimo) {
-						DefaultTableModel tabla = (DefaultTableModel) vb.table.getModel();
-						tabla.addRow(new Object[] { 
-								coche.getMarca(), 
-								coche.getModelo(),
-								coche.getMatricula(),
-								coche.getPrecio() 
-								});
-						contador++;
-					}
-				}
-				vb.lblError.setForeground(Color.BLUE);
-				vb.lblError.setText("Se han encontrado " + contador + " resultados entre "+precioMinimo +" y "+ precioMaximo+" €");
-			} catch (Exception e) {
-				vb.lblError.setForeground(Color.RED);
-				vb.lblError.setText("Solo puede introducir numeros");
-				vb.textMin.setText(null);
-				vb.textMax.setText(null);
-			}
 
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		
+		
+	}
+
+
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+		Object o = e.getSource();
+		int fila = vb.table.rowAtPoint(e.getPoint());
+		vb.dirWeb.setText(md.direcciones.get(fila).getDireccionWeb());
+		try {
+			r.exec("rundll32 url.dll, FileProtocolHandler " +md.direcciones.get(fila).getDireccionWeb());
+			vb.dirWeb.setText(null);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+		
+	}
+
+
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+	
+	
+	
+
+	
 }

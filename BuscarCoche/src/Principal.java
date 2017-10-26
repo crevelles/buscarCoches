@@ -6,9 +6,8 @@ public class Principal {
 
 		
 		VistaBusca vb = new VistaBusca();
-		
-		AccessOracle bbdd = new AccessOracle();
-		Controlador c = new Controlador(vb, bbdd);
+		Modelo m = new Modelo(vb);
+		Controlador c = new Controlador(vb,m);
 		vb.setControlador(c);
 		vb.setVisible(true);
 		
